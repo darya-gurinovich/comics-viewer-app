@@ -12,6 +12,7 @@ struct XkcdComicsFetcher {
     private struct URLs {
         static let currentComic = "https://xkcd.com/info.0.json"
         static let numberedComic = "https://xkcd.com/%d/info.0.json"
+        static let explaination = "https://www.explainxkcd.com/wiki/index.php/%d"
     }
     
     func getComicsNumber(completion: @escaping (Int?) -> Void) {
@@ -69,11 +70,14 @@ struct XkcdComicsFetcher {
                 }
                 
                 let publicationDate = Date.from(year: xkcdComicData.year, month: xkcdComicData.month, day: xkcdComicData.day)
+                let explainationUrlString = String(format: URLs.explaination, xkcdComicData.number)
+                
                 let xkcdComic = XkcdComic(title: xkcdComicData.title,
                                           description: xkcdComicData.description,
                                           imageData: comicImageData,
                                           number: xkcdComicData.number,
-                                          publicationDate: publicationDate)
+                                          publicationDate: publicationDate,
+                                          explainationUrlString: explainationUrlString)
                 completion(xkcdComic, nil)
             }
         }

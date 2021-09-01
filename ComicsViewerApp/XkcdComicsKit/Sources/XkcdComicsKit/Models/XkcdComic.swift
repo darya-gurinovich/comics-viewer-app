@@ -15,6 +15,7 @@ public struct XkcdComic {
     public let number: Int
     
     public let publicationDate: Date?
+    public let explainationUrlString: String
 }
 
 struct XkcdComicData: Decodable {
