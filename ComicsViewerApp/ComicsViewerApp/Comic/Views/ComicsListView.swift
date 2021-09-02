@@ -8,29 +8,73 @@
 import SwiftUI
 
 struct ComicsListView: View {
-    @ObservedObject var comicsViewModel = ComicsViewModel()
+    @ObservedObject var comicsViewModel: ComicsViewModel
+    
+    @State private var showsFavourites = false
     
     var body: some View {
-        let hasError = Binding<Bool>(get: { comicsViewModel.error != nil },
-                                     set: { if !$0 { comicsViewModel.error = nil } })
-        
-        VStack {
-            ComicView(comic: $comicsViewModel.comic)
-                .frame(maxHeight: .infinity, alignment: .center)
-            
-            Spacer()
-            
-            self.buttonsPanel
+        if comicsViewModel.showsNavigationBarButtons {
+            mainBody
+                .navigationBarItems(trailing: favouritesButton)
         }
-        .frame(minWidth: 0, maxWidth: .infinity)
-        .padding()
-        .onAppear {
-            comicsViewModel.fetchCurrentComic()
+        else {
+            mainBody
         }
-        .alert(isPresented: hasError, content: {
-            Alert(title: Text("Error"), message: Text(comicsViewModel.error?.localizedDescription ?? ""))
-        })
-        .navigationBarHidden(true)
+    }
+    
+    init(comicsViewModel: ComicsViewModel) {
+        self.comicsViewModel = comicsViewModel
+    }
+    
+    private var mainBody: some View {
+        Group {
+            let hasError = Binding<Bool>(get: { comicsViewModel.error != nil },
+                                         set: { if !$0 { comicsViewModel.error = nil } })
+            
+            Group {
+                if comicsViewModel.comicsNumber == 0 {
+                    Text("No comics were found")
+                        .font(.system(size: 24, weight: .bold))
+                }
+                else {
+                    VStack {
+                        ComicView(comic: $comicsViewModel.comic)
+                            .frame(maxHeight: .infinity, alignment: .center)
+                        
+                        Spacer()
+                        
+                        self.buttonsPanel
+                    }
+                }
+            }
+            .frame(minWidth: 0, maxWidth: .infinity)
+            .padding()
+            .onAppear {
+                comicsViewModel.refreshData()
+                comicsViewModel.fetchCurrentComic()
+            }
+            .alert(isPresented: hasError, content: {
+                Alert(title: Text("Error"), message: Text(comicsViewModel.error?.localizedDescription ?? ""))
+            })
+            .navigationBarTitle(comicsViewModel.navigationBarTitle, displayMode: .inline)
+        }
+    }
+    
+    private var favouritesButton: some View {
+        Group {
+            let comicsViewModel = ComicsViewModel(comicsSource: ComicsStorageSource(),
+                                                  navigationBarTitle: "Favourites",
+                                                  showsNavigationBarButtons: false)
+            
+            NavigationLink(destination: ComicsListView(comicsViewModel: comicsViewModel),
+                           isActive: $showsFavourites) {
+                Button(action: { showsFavourites = true }) {
+                    Image(systemName: "heart.fill")
+                        .resizable()
+                        .scaledToFit()
+                }
+            }
+        }
     }
     
     private var buttonsPanel: some View {

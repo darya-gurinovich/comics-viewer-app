@@ -18,6 +18,10 @@ struct StorageManager {
         realmStorage.getObject(primaryKey: number)
     }
     
+    func getAllComics() -> [Comic] {
+        realmStorage.getAllObjects(ofType: Comic.self)
+    }
+    
     func saveComic(_ comic: Comic) {
         realmStorage.save(object: comic)
     }

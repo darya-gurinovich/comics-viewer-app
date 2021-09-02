@@ -20,6 +20,16 @@ struct RealmStorage {
         return mappable as? T
     }
     
+    func getAllObjects<T: RealmObjectMappable>(ofType type: T.Type) -> [T] {
+        guard let realm = try? Realm() else { return [T]() }
+        
+        let realmType = type.realmObjectType
+        
+        let objects = Array(realm.objects(realmType)).map { type.createInstance(from: $0) as! T }
+        
+        return objects
+    }
+    
     func save<T: RealmObjectMappable>(object: T) {
         guard let realm = try? Realm() else { return }
         

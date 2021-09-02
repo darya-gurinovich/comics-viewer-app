@@ -9,6 +9,13 @@ import Foundation
 import XkcdComicsKit
 
 class ComicsViewModel: ObservableObject {
+    private var comicsSource: ComicsSource
+    
+    let navigationBarTitle: String
+    let showsNavigationBarButtons: Bool
+    
+    var comicsNumber: Int? { comicsSource.totalComicsNumber }
+    
     @Published var comic: Comic? {
         didSet {
             guard let comic = comic else { return }
@@ -24,38 +31,49 @@ class ComicsViewModel: ObservableObject {
     
     @Published var error: Error?
     
+    init(comicsSource: ComicsSource,
+         navigationBarTitle: String = "",
+         showsNavigationBarButtons: Bool = true) {
+        self.comicsSource = comicsSource
+        
+        self.navigationBarTitle = navigationBarTitle
+        self.showsNavigationBarButtons = showsNavigationBarButtons
+    }
+    
+    func refreshData() {
+        comicsSource.updateComics()
+        
+        // If there's no comics after the refresh, remove the current comic
+        if comicsNumber == 0 {
+            self.comic = nil
+        }
+    }
+    
     func fetchCurrentComic() {
-        XkcdComicsKit.default.fetchCurrentComic(completion: updateData)
+        // If there's no comics, don't fetch a new comic
+        guard comicsNumber != 0 else { return }
+        
+        comicsSource.fetchCurrentComic(completion: updateData)
     }
     
     func fetchFirstComic() {
-        XkcdComicsKit.default.fetchFirstComic(completion: updateData)
+        comicsSource.fetchFirstComic(completion: updateData)
     }
     
     func fetchPreviousComic() {
-        XkcdComicsKit.default.fetchPreviousComic(completion: updateData)
+        comicsSource.fetchPreviousComic(completion: updateData)
     }
     
     func fetchNextComic() {
-        XkcdComicsKit.default.fetchNextComic(completion: updateData)
+        comicsSource.fetchNextComic(completion: updateData)
     }
     
     func fetchLatestComic() {
-        XkcdComicsKit.default.fetchLatestComic(completion: updateData)
+        comicsSource.fetchLatestComic(completion: updateData)
     }
     
-    private func updateData(comicData: XkcdComic?, error: Error?) {
-        if let comicData = comicData {
-            let isFavourite = StorageManager.shared.getComic(number: comicData.number)?.isFavourite ?? false
-            
-            let comic = Comic(title: comicData.title,
-                                   description: comicData.description,
-                                   imageData: comicData.imageData,
-                                   number: comicData.number,
-                                   publicationDate: comicData.publicationDate,
-                                   explainationUrlString: comicData.explainationUrlString,
-                                   isFavourite: isFavourite)
-            
+    private func updateData(comic: Comic?, error: Error?) {
+        if let comic = comic {
             self.comic = comic
         }
         

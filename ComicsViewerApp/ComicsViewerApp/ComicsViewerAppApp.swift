@@ -12,7 +12,9 @@ struct ComicsViewerAppApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ComicsListView()
+                let comicsViewModel = ComicsViewModel(comicsSource: ComicsXkcdSource())
+                
+                ComicsListView(comicsViewModel: comicsViewModel)
             }
         }
     }

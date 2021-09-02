@@ -1,5 +1,5 @@
 public class XkcdComicsKit {
-    private var totalComicsNumber: Int?
+    public private(set) var totalComicsNumber: Int?
     private var currentComicNumber: Int?
     
     private let comicsFetcher = XkcdComicsFetcher()
