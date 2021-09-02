@@ -5,33 +5,32 @@
 //  Created by Dasha Gurinovich on 1.09.21.
 //
 
-import XkcdComicsKit
 import SwiftUI
 
 struct ComicDetailsView: View {
-    let comic: XkcdComic
+    let comic: Binding<Comic>
     
     @State private var explainationUrl: URL?
     
     var body: some View {
         VStack(spacing: 20) {
-            Text(comic.title)
+            Text(comic.wrappedValue.title)
                 .font(.title)
             
-            if let uiImage = UIImage(data: comic.imageData) {
+            if let uiImage = UIImage(data: comic.wrappedValue.imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
             
-            if let publicationDate = comic.publicationDate {
+            if let publicationDate = comic.wrappedValue.publicationDate {
                 Text("Publication Date: ")
                     .fontWeight(.semibold) +
                     
                 Text(publicationDate.getFormattedDate(format: "dd MMMM yyyy"))
             }
             
-            Text(comic.description)
+            Text(comic.wrappedValue.description)
                 .font(.body)
             
             Spacer()
@@ -50,15 +49,15 @@ struct ComicDetailsView: View {
     private var buttonsPanel: some View {
         HStack {
             PanelButton(systemImageName: "info.circle.fill") {
-                if let url = URL(string: comic.explainationUrlString) {
+                if let url = URL(string: comic.wrappedValue.explainationUrlString) {
                     self.explainationUrl = url
                 }
             }
             
             Spacer()
             
-            PanelButton(systemImageName: "heart") {
-                
+            PanelButton(systemImageName: comic.wrappedValue.isFavourite ? "heart.fill" : "heart") {
+                comic.wrappedValue.isFavourite.toggle()
             }
         }
     }
