@@ -15,9 +15,3 @@ extension Date {
         return dateformat.string(from: self)
     }
 }
-
-extension URL: Identifiable {
-    public var id: Int {
-        self.hashValue
-    }
-}

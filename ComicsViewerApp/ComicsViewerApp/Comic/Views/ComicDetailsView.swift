@@ -10,7 +10,7 @@ import SwiftUI
 struct ComicDetailsView: View {
     let comic: Binding<Comic>
     
-    @State private var explainationUrl: URL?
+    @State private var chosenSheetOption: SheetOption?
     
     var body: some View {
         VStack(spacing: 20) {
@@ -40,9 +40,26 @@ struct ComicDetailsView: View {
         .multilineTextAlignment(.center)
         .frame(minWidth: 0, maxWidth: .infinity)
         .padding()
+        .navigationBarItems(trailing: shareButton)
         .navigationBarTitle("", displayMode: .inline)
-        .sheet(item: $explainationUrl) {
-            SafariView(url: $0)
+        .sheet(item: $chosenSheetOption) {
+            switch $0 {
+            case .activity(let image):
+                ActivityViewController(activityItems: [image])
+
+            case .safari(let url):
+                SafariView(url: url)
+            }
+        }
+    }
+    
+    private var shareButton: some View {
+        Button(action: {
+            if let image = UIImage(data: comic.wrappedValue.imageData) {
+                self.chosenSheetOption = .activity(image: image)
+            }
+        }) {
+            Image(systemName: "square.and.arrow.up")
         }
     }
     
@@ -50,7 +67,7 @@ struct ComicDetailsView: View {
         HStack {
             PanelButton(systemImageName: "info.circle.fill") {
                 if let url = URL(string: comic.wrappedValue.explainationUrlString) {
-                    self.explainationUrl = url
+                    self.chosenSheetOption = .safari(url: url)
                 }
             }
             
@@ -58,6 +75,21 @@ struct ComicDetailsView: View {
             
             PanelButton(systemImageName: comic.wrappedValue.isFavourite ? "heart.fill" : "heart") {
                 comic.wrappedValue.isFavourite.toggle()
+            }
+        }
+    }
+    
+    enum SheetOption: Identifiable {
+        case activity(image: UIImage)
+        case safari(url: URL)
+        
+        public var id: Int {
+            switch self {
+            case .activity(let image):
+                return image.hashValue
+
+            case .safari(let url):
+                return url.hashValue
             }
         }
     }
