@@ -31,6 +31,8 @@ class ComicsViewModel: ObservableObject {
     
     @Published var error: Error?
     
+    @Published var isLoading: Bool = false
+    
     init(comicsSource: ComicsSource,
          navigationBarTitle: String = "",
          showsNavigationBarButtons: Bool = true) {
@@ -53,22 +55,32 @@ class ComicsViewModel: ObservableObject {
         // If there's no comics, don't fetch a new comic
         guard comicsNumber != 0 else { return }
         
+        isLoading = true
+        
         comicsSource.fetchCurrentComic(completion: updateData)
     }
     
     func fetchFirstComic() {
+        isLoading = true
+        
         comicsSource.fetchFirstComic(completion: updateData)
     }
     
     func fetchPreviousComic() {
+        isLoading = true
+        
         comicsSource.fetchPreviousComic(completion: updateData)
     }
     
     func fetchNextComic() {
+        isLoading = true
+        
         comicsSource.fetchNextComic(completion: updateData)
     }
     
     func fetchLatestComic() {
+        isLoading = true
+        
         comicsSource.fetchLatestComic(completion: updateData)
     }
     
@@ -78,5 +90,6 @@ class ComicsViewModel: ObservableObject {
         }
         
         self.error = error
+        self.isLoading = false
     }
 }

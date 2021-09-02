@@ -27,7 +27,7 @@ struct ComicsListView: View {
     }
     
     private var mainBody: some View {
-        Group {
+        ZStack {
             let hasError = Binding<Bool>(get: { comicsViewModel.error != nil },
                                          set: { if !$0 { comicsViewModel.error = nil } })
             
@@ -57,6 +57,10 @@ struct ComicsListView: View {
                 Alert(title: Text("Error"), message: Text(comicsViewModel.error?.localizedDescription ?? ""))
             })
             .navigationBarTitle(comicsViewModel.navigationBarTitle, displayMode: .inline)
+            
+            if comicsViewModel.isLoading {
+                LoadingProgressView()
+            }
         }
     }
     
@@ -134,9 +138,6 @@ private struct ComicView: View {
                     }
                 }
             }
-        }
-        else {
-            Text("Loading...")
         }
     }
 }
