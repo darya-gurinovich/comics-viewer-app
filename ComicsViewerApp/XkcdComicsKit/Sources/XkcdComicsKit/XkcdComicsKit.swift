@@ -21,7 +21,7 @@ public class XkcdComicsKit {
     }
     
     public func fetchPreviousComic(completion: @escaping (XkcdComic?, Error?) -> Void) {
-        guard let currentComicNumber = self.currentComicNumber else {
+        guard let currentComicNumber = self.currentComicNumber ?? self.totalComicsNumber else {
             completion(nil, XkcdComicError.currentComicMissing)
             
             return
@@ -37,13 +37,17 @@ public class XkcdComicsKit {
     }
     
     public func fetchNextComic(completion: @escaping (XkcdComic?, Error?) -> Void) {
-        guard let currentComicNumber = self.currentComicNumber else {
+        guard let currentComicNumber = self.currentComicNumber ?? self.totalComicsNumber else {
             completion(nil, XkcdComicError.currentComicMissing)
             
             return
         }
         
-        fetchComic(number: currentComicNumber + 1, completion: completion)
+        fetchComic(number: currentComicNumber + 1) {
+            let error = $1 as? XkcdComicError == .dataLoadingFailed ? XkcdComicError.noNextComic : $1
+            
+            completion($0, error)
+        }
     }
     
     public func fetchLatestComic(completion: @escaping (XkcdComic?, Error?) -> Void) {
