@@ -17,11 +17,16 @@ struct ComicsStorageSource: ComicsSource {
     
     init() {
         self.comics = StorageManager.shared.getAllComics()
-        self.currentComicNumber = comics.endIndex - 1
+        
+        if comics.endIndex > 0 {
+            self.currentComicNumber = comics.endIndex - 1
+        }
     }
     
     mutating func updateComics() {
         self.comics = StorageManager.shared.getAllComics()
+        
+        print(self.comics.count)
     }
     
     mutating func fetchCurrentComic(completion: @escaping (Comic?, Error?) -> Void) {
